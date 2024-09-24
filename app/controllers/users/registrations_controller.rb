@@ -1,7 +1,5 @@
 module Users
   class RegistrationsController < Devise::RegistrationsController
-    include RackSessionsFix
-
     respond_to :json
 
     private
