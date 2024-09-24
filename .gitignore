@@ -6,7 +6,6 @@
 !/log/.keep
 /tmp
 !/tmp/.keep
-/bin
 
 # Ignore uploaded files in development.
 /storage/*
