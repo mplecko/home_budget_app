@@ -1,6 +1,4 @@
 class CategoriesController < ApplicationController
-  before_action :authenticate_user!
-
   before_action :set_category, only: [:show, :destroy]
 
   def index
@@ -14,10 +12,8 @@ class CategoriesController < ApplicationController
 
   def create
     @category = Category.new(category_params)
-
-    return render json: @category, status: :created if @category.save
-
-    render json: { errors: @category.errors.full_messages }, status: :unprocessable_entity
+    @category.save!
+    render json: @category, status: :created
   end
 
   def destroy
@@ -29,8 +25,6 @@ class CategoriesController < ApplicationController
 
   def set_category
     @category = Category.find(params[:id])
-  rescue ActiveRecord::RecordNotFound
-    render json: { errors: ['Category not found'] }, status: :not_found
   end
 
   def category_params

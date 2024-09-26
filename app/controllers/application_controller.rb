@@ -17,7 +17,7 @@ class ApplicationController < ActionController::API
 
   def authenticate_user!
     super
-    Rails.logger.debug("Authenticated User (after super): #{current_user.inspect}")
+    Rails.logger.debug("Authenticated User: #{current_user.inspect}")
   end
 
   protected
