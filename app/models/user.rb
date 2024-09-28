@@ -13,6 +13,12 @@ class User < ApplicationRecord
   validates :last_name, presence: true
   validates :email, presence: true, uniqueness: true
 
+  def calculate_budget
+    total_expenses = expenses.sum(:amount)
+    new_budget = 1000 - total_expenses
+    update(budget: new_budget)
+  end
+
   def self.reset_all_budgets
     User.find_each do |user|
       reset_budget_if_needed(user)

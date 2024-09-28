@@ -7,7 +7,7 @@ class ExpensesController < ApplicationController
   end
 
   def show
-    render json: @expense.as_json(include: { category: { only: [:id, :name] } }, except: [:created_at, :updated_at])
+    render json: @expense
   end
 
   def create
@@ -15,14 +15,39 @@ class ExpensesController < ApplicationController
     @expense.save!
 
     render json: {
-      expense: @expense.as_json(include: { category: { only: [:id, :name] } }, except: [:created_at, :updated_at]),
+      expense: ExpenseSerializer.new(@expense).serializable_hash,
       remaining_budget: current_user.budget
     }, status: :created
+  end
+
+  def update
+    @expense = current_user.expenses.find(params[:id])
+    @expense.update!(expense_params)
+
+    render json: {
+      expense: ExpenseSerializer.new(@expense).serializable_hash,
+      remaining_budget: current_user.budget
+    }
   end
 
   def destroy
     @expense.destroy
     head :no_content
+  end
+
+  def date_range
+    start_date = Date.parse(params.require(:start_date))
+    end_date = Date.parse(params.require(:end_date))
+
+    @expenses = current_user.expenses.where(date: start_date..end_date)
+    total_cost = @expenses.sum(:amount)
+
+    expenses_json = @expenses.map { |expense| ExpenseSerializer.new(expense).serializable_hash }
+
+    render json: {
+      expenses: expenses_json,
+      total_cost: total_cost
+    }
   end
 
   private

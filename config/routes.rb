@@ -11,7 +11,7 @@ Rails.application.routes.draw do
   resources :categories, only: %i[index show create update destroy]
   resources :expenses, only: %i[index show create update destroy] do
     collection do
-      get :filter
+      get :date_range
     end
   end
 end

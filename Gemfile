@@ -33,9 +33,7 @@ gem 'devise-jwt'
 
 # Serialization
 gem 'jsonapi-serializer'
-
-# Clean syntax for writing and deploying cron jobs.
-gem 'whenever', '~> 0.9.4'
+gem 'active_model_serializers', '~> 0.10.0'
 
 # sidekiq for background jobs
 gem 'sidekiq'

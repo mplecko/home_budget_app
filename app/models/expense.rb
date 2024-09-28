@@ -5,11 +5,12 @@ class Expense < ApplicationRecord
   validates :amount, presence: true, numericality: { greater_than: 0 }
   validates :date, presence: true
 
-  after_create :deduct_from_budget
+  after_save :update_user_budget
+  after_destroy :update_user_budget
 
   private
 
-  def deduct_from_budget
-    user.update(budget: user.budget - amount)
+  def update_user_budget
+    user.calculate_budget
   end
 end

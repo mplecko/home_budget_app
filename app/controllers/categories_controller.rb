@@ -16,6 +16,12 @@ class CategoriesController < ApplicationController
     render json: @category, status: :created
   end
 
+  def update
+    @category = Category.find(params[:id])
+    @category.update!(category_params)
+    render json: @category
+  end
+
   def destroy
     @category.destroy
     head :no_content
