@@ -1,4 +1,3 @@
-# spec/requests/sessions_controller_spec.rb
 require 'rails_helper'
 
 RSpec.describe 'User Sessions', type: :request do
@@ -27,11 +26,9 @@ RSpec.describe 'User Sessions', type: :request do
   describe 'DELETE /logout' do
     context 'with a valid JWT token' do
       it 'logs out the user and returns a success message' do
-        # Simulate a successful login to get the JWT token
         post '/login', params: valid_login_params
         token = response.headers['Authorization']
 
-        # Perform logout with the JWT token
         delete '/logout', headers: { 'Authorization' => token }
         expect(response).to have_http_status(:ok)
         expect(JSON.parse(response.body)['message']).to eq('Logged out successfully.')

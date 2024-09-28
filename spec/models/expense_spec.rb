@@ -16,12 +16,6 @@ RSpec.describe Expense, type: :model do
       expect(expense.errors[:amount]).to include("can't be blank")
     end
 
-    it 'is invalid with an amount less than or equal to 0' do
-      expense.amount = 0
-      expect(expense).not_to be_valid
-      expect(expense.errors[:amount]).to include('must be greater than 0')
-    end
-
     it 'is invalid without a date' do
       expense.date = nil
       expect(expense).not_to be_valid

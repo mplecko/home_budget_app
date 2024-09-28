@@ -39,14 +39,13 @@ class ExpensesController < ApplicationController
     start_date = Date.parse(params.require(:start_date))
     end_date = Date.parse(params.require(:end_date))
 
-    @expenses = current_user.expenses.where(date: start_date..end_date)
-    total_cost = @expenses.sum(:amount)
+    raise ArgumentError unless start_date <= end_date
 
-    expenses_json = @expenses.map { |expense| ExpenseSerializer.new(expense).serializable_hash }
+    @expenses = current_user.expenses.where(date: start_date..end_date)
+    total_expenses_in_given_range = @expenses.sum(:amount)
 
     render json: {
-      expenses: expenses_json,
-      total_cost: total_cost
+      total_expenses_in_given_range: total_expenses_in_given_range
     }
   end
 
