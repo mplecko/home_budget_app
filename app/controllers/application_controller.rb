@@ -22,7 +22,7 @@ class ApplicationController < ActionController::API
   end
 
   def render_invalid_date(exception)
-    render json: { error: ["invalid date"] }, status: :bad_request
+    render json: { error: [exception.message] }, status: :bad_request
   end
 
   def authenticate_user!

@@ -3,7 +3,8 @@ require 'warden/jwt_auth'
 
 RSpec.describe 'Expenses API', type: :request do
   let!(:user) { create(:user) }
-  let!(:category) { create(:category, name: 'Food') }
+  let!(:category1) { create(:category, name: 'Food') }
+  let!(:category2) { create(:category, name: 'Transport') }
   let(:auth_token) do
     Warden::JWTAuth::UserEncoder.new.call(user, :user, nil).first
   end
@@ -41,7 +42,7 @@ RSpec.describe 'Expenses API', type: :request do
       }
 
       response '201', 'expense created' do
-        let(:expense) { { description: 'Grocery shopping', amount: 50.5, date: '2024-01-01', category_id: category.id } }
+        let(:expense) { { description: 'Grocery shopping', amount: 50.5, date: '2024-01-01', category_id: category1.id } }
 
         it 'returns a 201 status' do
           post '/expenses', params: expense.to_json, headers: headers
@@ -69,7 +70,7 @@ RSpec.describe 'Expenses API', type: :request do
       security [Bearer: []]
 
       response '200', 'expense found' do
-        let(:expense) { create(:expense, user: user, category: category) }
+        let(:expense) { create(:expense, user: user, category: category1) }
         let(:id) { expense.id }
 
         it 'returns a 200 status' do
@@ -104,9 +105,9 @@ RSpec.describe 'Expenses API', type: :request do
       }
 
       response '200', 'expense updated' do
-        let(:expense) { create(:expense, user: user, category: category) }
+        let(:expense) { create(:expense, user: user, category: category1) }
         let(:id) { expense.id }
-        let(:expense_params) { { description: 'Updated expense', amount: 30.0, date: '2024-01-05', category_id: category.id } }
+        let(:expense_params) { { description: 'Updated expense', amount: 30.0, date: '2024-01-05', category_id: category1.id } }
 
         it 'returns a 200 status' do
           put "/expenses/#{id}", params: expense_params.to_json, headers: headers
@@ -115,9 +116,9 @@ RSpec.describe 'Expenses API', type: :request do
       end
 
       response '422', 'invalid request' do
-        let(:expense) { create(:expense, user: user, category: category) }
+        let(:expense) { create(:expense, user: user, category: category1) }
         let(:id) { expense.id }
-        let(:expense_params) { { description: '', amount: 30.0, date: '2024-01-05', category_id: category.id } }
+        let(:expense_params) { { description: '', amount: 30.0, date: '2024-01-05', category_id: category1.id } }
 
         it 'returns a 422 status' do
           put "/expenses/#{id}", params: expense_params.to_json, headers: headers
@@ -129,7 +130,7 @@ RSpec.describe 'Expenses API', type: :request do
         let(:id) { 0 }
 
         it 'returns a 404 status' do
-          put "/expenses/#{id}", params: { description: 'Updated expense', amount: 30.0, date: '2024-01-05', category_id: category.id }.to_json, headers: headers
+          put "/expenses/#{id}", params: { description: 'Updated expense', amount: 30.0, date: '2024-01-05', category_id: category1.id }.to_json, headers: headers
           expect(response).to have_http_status(:not_found)
         end
       end
@@ -140,7 +141,7 @@ RSpec.describe 'Expenses API', type: :request do
       security [Bearer: []]
 
       response '204', 'expense deleted' do
-        let(:expense) { create(:expense, user: user, category: category) }
+        let(:expense) { create(:expense, user: user, category: category1) }
         let(:id) { expense.id }
 
         it 'returns a 204 status' do
@@ -160,30 +161,78 @@ RSpec.describe 'Expenses API', type: :request do
     end
   end
 
-  path '/expenses/date_range' do
-    get 'Retrieves expenses within a date range' do
+  path '/expenses/filter' do
+    get 'Filters expenses based on various parameters' do
       tags 'Expenses'
       produces 'application/json'
       security [Bearer: []]
-      parameter name: :start_date, in: :query, type: :string, format: :date, description: 'Start date of the range'
-      parameter name: :end_date, in: :query, type: :string, format: :date, description: 'End date of the range'
+      parameter name: :start_date, in: :query, type: :string, format: :date, description: 'Start date for filtering'
+      parameter name: :end_date, in: :query, type: :string, format: :date, description: 'End date for filtering'
+      parameter name: :min_price, in: :query, type: :number, description: 'Minimum price for filtering'
+      parameter name: :max_price, in: :query, type: :number, description: 'Maximum price for filtering'
+      parameter name: :category_id, in: :query, type: :integer, description: 'Category ID for filtering'
 
-      response '200', 'expenses within date range found' do
-        let(:start_date) { '2024-01-01' }
-        let(:end_date) { '2024-01-31' }
+      let!(:expense1) { create(:expense, user: user, category: category1, amount: 50.0, date: Date.today - 7.days) }
+      let!(:expense2) { create(:expense, user: user, category: category1, amount: 100.0, date: Date.today - 1.day) }
+      let!(:expense3) { create(:expense, user: user, category: category2, amount: 150.0, date: Date.today) }
 
-        it 'returns a 200 status' do
-          get "/expenses/date_range?start_date=#{start_date}&end_date=#{end_date}", headers: headers
+      response '200', 'expenses filtered by date range' do
+        let(:start_date) { (Date.today - 7.days).to_s }
+        let(:end_date) { Date.today.to_s }
+
+        it 'returns filtered expenses' do
+          get '/expenses/filter', params: { start_date: start_date, end_date: end_date }, headers: headers
           expect(response).to have_http_status(:ok)
+          expect(JSON.parse(response.body)['expenses'].size).to eq(3)
+        end
+      end
+
+      response '200', 'expenses filtered by price range' do
+        let(:min_price) { 50.0 }
+        let(:max_price) { 150.0 }
+
+        it 'returns filtered expenses' do
+          get '/expenses/filter', params: { min_price: min_price, max_price: max_price }, headers: headers
+          expect(response).to have_http_status(:ok)
+          expect(JSON.parse(response.body)['expenses'].size).to eq(3)
+        end
+      end
+
+      response '200', 'expenses filtered by category' do
+        let(:category_id) { category1.id }
+
+        it 'returns filtered expenses' do
+          get '/expenses/filter', params: { category_id: category_id }, headers: headers
+          expect(response).to have_http_status(:ok)
+          expect(JSON.parse(response.body)['expenses'].size).to eq(2)
         end
       end
 
       response '400', 'invalid date range' do
-        let(:start_date) { '2024-01-01' }
-        let(:end_date) { '' }
+        let(:start_date) { Date.today.to_s }
+        let(:end_date) { (Date.today - 7.days).to_s }
 
-        it 'returns a 400 status' do
-          get "/expenses/date_range?start_date=#{start_date}&end_date=#{end_date}", headers: headers
+        it 'returns a bad request' do
+          get '/expenses/filter', params: { start_date: start_date, end_date: end_date }, headers: headers
+          expect(response).to have_http_status(:bad_request)
+        end
+      end
+
+      response '404', 'category not found' do
+        let(:category_id) { 999 }
+
+        it 'returns a 404 status' do
+          get '/expenses/filter', params: { category_id: category_id }, headers: headers
+          expect(response).to have_http_status(:not_found)
+        end
+      end
+
+      response '400', 'min price greater than max price' do
+        let(:min_price) { 150.0 }
+        let(:max_price) { 50.0 }
+
+        it 'returns a bad request' do
+          get '/expenses/filter', params: { min_price: min_price, max_price: max_price }, headers: headers
           expect(response).to have_http_status(:bad_request)
         end
       end

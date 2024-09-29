@@ -13,7 +13,7 @@ Rails.application.routes.draw do
   resources :categories, only: %i[index show create update destroy]
   resources :expenses, only: %i[index show create update destroy] do
     collection do
-      get :date_range
+      get :filter
     end
   end
 end
