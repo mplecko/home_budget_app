@@ -1,9 +1,8 @@
 class ExpensesController < ApplicationController
-  before_action :set_expense, only: [:show, :destroy]
+  before_action :set_expense, only: [:show, :update, :destroy]
 
   def index
-    @expenses = current_user.expenses.all
-    render json: @expenses
+    render json: current_user.expenses
   end
 
   def show
@@ -11,17 +10,16 @@ class ExpensesController < ApplicationController
   end
 
   def create
-    @expense = current_user.expenses.build(expense_params)
-    @expense.save!
+    expense = current_user.expenses.build(expense_params)
+    expense.save!
 
     render json: {
-      expense: ExpenseSerializer.new(@expense).serializable_hash,
+      expense: ExpenseSerializer.new(expense).serializable_hash,
       remaining_budget: current_user.budget
     }, status: :created
   end
 
   def update
-    @expense = current_user.expenses.find(params[:id])
     @expense.update!(expense_params)
 
     render json: {
@@ -37,41 +35,13 @@ class ExpensesController < ApplicationController
 
   def filter
     expenses = current_user.expenses
-
-    if params[:start_date].present? || params[:end_date].present?
-      params.require([:start_date, :end_date])
-
-      start_date = parse_date(params[:start_date], 'start_date')
-      end_date = parse_date(params[:end_date], 'end_date')
-
-      raise ArgumentError, 'Start date must be before or equal to end date' if start_date > end_date
-
-      expenses = expenses.where(date: start_date..end_date)
-    end
-
-    if params[:min_price].present? || params[:max_price].present?
-      params.require([:min_price, :max_price])
-
-      min_price = parse_float(params[:min_price], 'min_price')
-      max_price = parse_float(params[:max_price], 'max_price')
-
-      raise ArgumentError, 'Minimum price must be less than or equal to maximum price' if min_price > max_price
-
-      expenses = expenses.where(amount: min_price..max_price)
-    end
-
-    if params[:category_id].present?
-      category = Category.find_by(id: params[:category_id])
-      raise ActiveRecord::RecordNotFound, 'Category not found' unless category
-
-      expenses = expenses.where(category_id: category.id)
-    end
-
-    total_expenses = expenses.sum(:amount)
+    expenses = filter_by_date_range(expenses) if params[:start_date].present? || params[:end_date].present?
+    expenses = filter_by_price_range(expenses) if params[:min_price].present? || params[:max_price].present?
+    expenses = filter_by_category(expenses) if params[:category_id].present?
 
     render json: {
       expenses: expenses,
-      total_expenses: total_expenses
+      total_expenses: expenses.sum(:amount)
     }
   end
 
@@ -83,6 +53,31 @@ class ExpensesController < ApplicationController
 
   def expense_params
     params.require(:expense).permit(:description, :amount, :date, :category_id)
+  end
+
+  def filter_by_date_range(expenses)
+    params.require([:start_date, :end_date])
+    start_date = parse_date(params[:start_date], 'start_date')
+    end_date = parse_date(params[:end_date], 'end_date')
+    raise ArgumentError, 'Start date must be before or equal to end date' if start_date > end_date
+
+    expenses.where(date: start_date..end_date)
+  end
+
+  def filter_by_price_range(expenses)
+    params.require([:min_price, :max_price])
+    min_price = parse_float(params[:min_price], 'min_price')
+    max_price = parse_float(params[:max_price], 'max_price')
+    raise ArgumentError, 'Minimum price must be less than or equal to maximum price' if min_price > max_price
+
+    expenses.where(amount: min_price..max_price)
+  end
+
+  def filter_by_category(expenses)
+    category = Category.find_by(id: params[:category_id])
+    raise ActiveRecord::RecordNotFound, 'Category not found' unless category
+
+    expenses.where(category_id: category.id)
   end
 
   def parse_date(date_str, param_name)

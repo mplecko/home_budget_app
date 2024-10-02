@@ -853,13 +853,49 @@
         ],
         "responses": {
           "200": {
-            "description": "expenses filtered by category"
+            "description": "expenses filtered by category",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/expense"
+                  }
+                }
+              }
+            }
           },
           "400": {
-            "description": "min price greater than max price"
+            "description": "min price greater than max price",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "example": "Minimum price must be less than or equal to maximum price"
+                    }
+                  }
+                }
+              }
+            }
           },
           "404": {
-            "description": "category not found"
+            "description": "category not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "example": "Category not found"
+                    }
+                  }
+                }
+              }
+            }
           }
         }
       }

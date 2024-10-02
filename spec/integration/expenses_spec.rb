@@ -176,7 +176,10 @@ RSpec.describe 'Expenses API', type: :request do
       let!(:expense2) { create(:expense, user: user, category: category1, amount: 100.0, date: Date.today - 1.day) }
       let!(:expense3) { create(:expense, user: user, category: category2, amount: 150.0, date: Date.today) }
 
+      # Success responses:
       response '200', 'expenses filtered by date range' do
+        schema type: :array, items: { '$ref' => '#/components/schemas/expense' }
+
         let(:start_date) { (Date.today - 7.days).to_s }
         let(:end_date) { Date.today.to_s }
 
@@ -187,7 +190,31 @@ RSpec.describe 'Expenses API', type: :request do
         end
       end
 
+      # Error: invalid date range
+      response '400', 'invalid date range or format' do
+        schema type: :object, properties: {
+          error: { type: :string, example: 'Start date must be before or equal to end date' }
+        }
+
+        let(:start_date) { Date.today.to_s }
+        let(:end_date) { (Date.today - 7.days).to_s }
+
+        it 'returns a bad request for invalid date range' do
+          get '/expenses/filter', params: { start_date: start_date, end_date: end_date }, headers: headers
+          expect(response).to have_http_status(:bad_request)
+          expect(JSON.parse(response.body)['error']).to include('Start date must be before or equal to end date')
+        end
+
+        it 'returns a bad request for invalid date format' do
+          get '/expenses/filter', params: { start_date: 'invalid_date', end_date: Date.today.to_s }, headers: headers
+          expect(response).to have_http_status(:bad_request)
+          expect(JSON.parse(response.body)['error']).to include('Invalid date format for start_date')
+        end
+      end
+
       response '200', 'expenses filtered by price range' do
+        schema type: :array, items: { '$ref' => '#/components/schemas/expense' }
+
         let(:min_price) { 50.0 }
         let(:max_price) { 150.0 }
 
@@ -198,7 +225,24 @@ RSpec.describe 'Expenses API', type: :request do
         end
       end
 
+      response '400', 'min price greater than max price' do
+        schema type: :object, properties: {
+          error: { type: :string, example: 'Minimum price must be less than or equal to maximum price' }
+        }
+
+        let(:min_price) { 150.0 }
+        let(:max_price) { 50.0 }
+
+        it 'returns a bad request for invalid price range' do
+          get '/expenses/filter', params: { min_price: min_price, max_price: max_price }, headers: headers
+          expect(response).to have_http_status(:bad_request)
+          expect(JSON.parse(response.body)['error']).to include('Minimum price must be less than or equal to maximum price')
+        end
+      end
+
       response '200', 'expenses filtered by category' do
+        schema type: :array, items: { '$ref' => '#/components/schemas/expense' }
+
         let(:category_id) { category1.id }
 
         it 'returns filtered expenses' do
@@ -208,32 +252,17 @@ RSpec.describe 'Expenses API', type: :request do
         end
       end
 
-      response '400', 'invalid date range' do
-        let(:start_date) { Date.today.to_s }
-        let(:end_date) { (Date.today - 7.days).to_s }
-
-        it 'returns a bad request' do
-          get '/expenses/filter', params: { start_date: start_date, end_date: end_date }, headers: headers
-          expect(response).to have_http_status(:bad_request)
-        end
-      end
-
       response '404', 'category not found' do
+        schema type: :object, properties: {
+          error: { type: :string, example: 'Category not found' }
+        }
+
         let(:category_id) { 999 }
 
-        it 'returns a 404 status' do
+        it 'returns a 404 status for non-existent category' do
           get '/expenses/filter', params: { category_id: category_id }, headers: headers
           expect(response).to have_http_status(:not_found)
-        end
-      end
-
-      response '400', 'min price greater than max price' do
-        let(:min_price) { 150.0 }
-        let(:max_price) { 50.0 }
-
-        it 'returns a bad request' do
-          get '/expenses/filter', params: { min_price: min_price, max_price: max_price }, headers: headers
-          expect(response).to have_http_status(:bad_request)
+          expect(JSON.parse(response.body)['error']).to include('Not Found')
         end
       end
     end

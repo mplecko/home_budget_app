@@ -1,9 +1,8 @@
 class CategoriesController < ApplicationController
-  before_action :set_category, only: [:show, :destroy]
+  before_action :set_category, only: [:show, :update, :destroy]
 
   def index
-    @categories = Category.all
-    render json: @categories
+    render json: Category.all
   end
 
   def show
@@ -11,13 +10,12 @@ class CategoriesController < ApplicationController
   end
 
   def create
-    @category = Category.new(category_params)
-    @category.save!
-    render json: @category, status: :created
+    category = Category.new(category_params)
+    category.save!
+    render json: category, status: :created
   end
 
   def update
-    @category = Category.find(params[:id])
     @category.update!(category_params)
     render json: @category
   end
