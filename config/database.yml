@@ -1,0 +1,19 @@
+default: &default
+  adapter: postgresql
+  encoding: unicode
+  pool: 5
+  username: <%= Rails.application.credentials.db_username %>
+  password: <%= Rails.application.credentials.db_password %>
+  host: localhost
+
+development:
+  <<: *default
+  database: homebudgetapp_development
+
+test:
+  <<: *default
+  database: homebudgetapp_test
+
+production:
+  <<: *default
+  database: homebudgetapp_production

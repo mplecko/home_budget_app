@@ -21,6 +21,11 @@ class CategoriesController < ApplicationController
   end
 
   def destroy
+    if @category.expenses.any?
+      @category.errors.add(:base, 'Cannot delete category with associated expenses')
+      raise ActiveRecord::RecordInvalid, @category
+    end
+
     @category.destroy
     head :no_content
   end

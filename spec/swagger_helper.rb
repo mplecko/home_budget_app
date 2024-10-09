@@ -7,7 +7,7 @@ RSpec.configure do |config|
     'v1/swagger.yaml' => {
       openapi: '3.0.1',
       info: {
-        title: 'Desk Keeper API',
+        title: 'Home budget API',
         version: 'v1'
       },
       paths: {

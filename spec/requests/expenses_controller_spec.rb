@@ -1,7 +1,7 @@
 require 'rails_helper'
 
 RSpec.describe 'Expenses', type: :request do
-  let(:user) { create(:user, budget: 1000.0) }
+  let(:user) { create :user }
   let(:headers) { authenticate_user(user) }
   let(:category1) { create(:category) }
   let(:category2) { create(:category) }

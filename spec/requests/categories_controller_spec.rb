@@ -95,7 +95,15 @@ RSpec.describe 'Categories', type: :request do
   end
 
   describe 'DELETE /categories/:id' do
-    it 'deletes the category' do
+    it 'does not delete the category if it has associated expenses' do
+      create(:expense, category: category)
+
+      delete "/categories/#{category.id}", headers: headers
+      expect(response).to have_http_status(:unprocessable_entity)
+      expect(JSON.parse(response.body)['errors']).to include('Cannot delete category with associated expenses')
+    end
+
+    it 'deletes the category if it has no associated expenses' do
       category_to_delete = create(:category)
       expect {
         delete "/categories/#{category_to_delete.id}", headers: headers

@@ -1,86 +1,36 @@
 {
   "openapi": "3.0.1",
   "info": {
-    "title": "Desk Keeper API",
+    "title": "Home budget API",
     "version": "v1"
   },
   "paths": {
-    "/users/me": {
-      "get": {
+    "/signup": {
+      "post": {
         "tags": [
-          "User"
+          "Authentication"
         ],
-        "summary": "Retrieve current user profile",
-        "operationId": "getCurrentUserProfile",
-        "security": [
-          {
-            "Bearer": [
-
-            ]
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Current user profile fetched successfully",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/user"
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Unauthorized",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "status": {
-                      "type": "integer"
-                    },
-                    "message": {
-                      "type": "string"
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/users/update": {
-      "put": {
-        "tags": [
-          "User"
-        ],
-        "summary": "Update user profile",
-        "operationId": "updateUserProfile",
-        "security": [
-          {
-            "Bearer": [
-
-            ]
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
+    "summary": "Sign up a new user",
+    "operationId": "signUpUser",
+    "requestBody": {
+      "required": true,
+      "content": {
+        "application/json": {
+          "schema": {
+            "type": "object",
+            "properties": {
+              "user": {
                 "type": "object",
                 "properties": {
+                  "email": {
+                    "type": "string",
+                    "format": "email"
+                  },
                   "first_name": {
                     "type": "string"
                   },
                   "last_name": {
                     "type": "string"
-                  },
-                  "email": {
-                    "type": "string",
-                    "format": "email"
                   },
                   "password": {
                     "type": "string"
@@ -88,138 +38,20 @@
                   "password_confirmation": {
                     "type": "string"
                   }
-                }
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "User profile updated successfully",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/user"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Invalid data provided",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "status": {
-                      "type": "integer"
-                    },
-                    "message": {
-                      "type": "string"
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/users/reset_budget": {
-      "post": {
-        "tags": [
-          "User"
-        ],
-        "summary": "Manually reset the user budget",
-        "operationId": "resetUserBudget",
-        "security": [
-          {
-            "Bearer": [
-
-            ]
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "User budget reset successfully",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "status": {
-                      "type": "string"
-                    },
-                    "message": {
-                      "type": "string"
-                    },
-                    "new_budget": {
-                      "type": "number"
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Unauthorized",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "status": {
-                      "type": "integer"
-                    },
-                    "message": {
-                      "type": "string"
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/users/sign_up": {
-      "post": {
-        "tags": [
-          "Authentication"
-        ],
-        "summary": "Sign up a new user",
-        "operationId": "signUpUser",
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "email": {
-                    "type": "string",
-                    "format": "email"
-                  },
-                  "password": {
-                    "type": "string"
-                  },
-                  "first_name": {
-                    "type": "string"
-                  },
-                  "last_name": {
-                    "type": "string"
-                  }
                 },
                 "required": [
                   "email",
-                  "password",
                   "first_name",
-                  "last_name"
+                  "last_name",
+                  "password",
+                  "password_confirmation"
                 ]
               }
             }
           }
-        },
+        }
+      }
+    },
         "responses": {
           "200": {
             "description": "User signed up successfully",
@@ -281,7 +113,7 @@
         }
       }
     },
-    "/users/sign_in": {
+    "/login": {
       "post": {
         "tags": [
           "Authentication"
@@ -295,18 +127,23 @@
               "schema": {
                 "type": "object",
                 "properties": {
-                  "email": {
-                    "type": "string",
-                    "format": "email"
-                  },
-                  "password": {
-                    "type": "string"
+                  "user": {
+                    "type": "object",
+                    "properties": {
+                      "email": {
+                        "type": "string",
+                        "format": "email"
+                      },
+                      "password": {
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "email",
+                      "password"
+                    ]
                   }
-                },
-                "required": [
-                  "email",
-                  "password"
-                ]
+                }
               }
             }
           }
@@ -377,20 +214,46 @@
         }
       }
     },
-    "/users/sign_out": {
-      "delete": {
-        "tags": [
-          "Authentication"
-        ],
-        "summary": "Log out a user",
-        "operationId": "logoutUser",
-        "security": [
-          {
-            "Bearer": [
-
-            ]
+"/logout": {
+  "delete": {
+    "tags": [
+      "Authentication"
+    ],
+    "summary": "Log out a user",
+    "operationId": "logoutUser",
+    "security": [
+      {
+        "Bearer": []
+      }
+    ],
+    "requestBody": {
+      "required": true,
+      "content": {
+        "application/json": {
+          "schema": {
+            "type": "object",
+            "properties": {
+              "user": {
+                "type": "object",
+                "properties": {
+                  "email": {
+                    "type": "string",
+                    "format": "email"
+                  },
+                  "password": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "email",
+                  "password"
+                ]
+              }
+            }
           }
-        ],
+        }
+      }
+    },
         "responses": {
           "200": {
             "description": "Logged out successfully",
@@ -438,6 +301,53 @@
         }
       }
     },
+    "/users/users/budget": {
+      "get": {
+        "summary": "Get the current user's budget",
+        "tags": [
+          "Users"
+        ],
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Budget found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "budget": {
+                      "type": "number",
+                      "example": 850.00
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "example": "You need to sign in or sign up before continuing."
+                    }
+                  }
+                }
+              }
+            }
+          },
+        }
+      }
+    },
     "/categories": {
       "get": {
         "summary": "get categories",
@@ -454,7 +364,10 @@
         "responses": {
           "200": {
             "description": "categories found"
-          }
+          },
+          "401": {
+            "description": "unauthorized"
+          },
         }
       },
       "post": {
@@ -475,6 +388,9 @@
         "responses": {
           "201": {
             "description": "category created"
+          },
+          "401": {
+            "description": "unauthorized"
           },
           "422": {
             "description": "invalid request"
@@ -527,6 +443,9 @@
           "200": {
             "description": "category found"
           },
+          "401": {
+            "description": "unauthorized"
+          },
           "404": {
             "description": "category not found"
           }
@@ -550,6 +469,9 @@
         "responses": {
           "200": {
             "description": "category updated"
+          },
+          "401": {
+            "description": "unauthorized"
           },
           "422": {
             "description": "invalid request"
@@ -592,6 +514,12 @@
           "204": {
             "description": "category deleted"
           },
+          "401": {
+            "description": "unauthorized"
+          },
+          "422": {
+            "description": "cannot delete category with associated expenses"
+          },
           "404": {
             "description": "category not found"
           }
@@ -624,7 +552,10 @@
                 }
               }
             }
-          }
+          },
+          "401": {
+            "description": "unauthorized"
+          },
         }
       },
       "post": {
@@ -645,6 +576,9 @@
         "responses": {
           "201": {
             "description": "expense created"
+          },
+          "401": {
+            "description": "unauthorized"
           },
           "422": {
             "description": "invalid request"
@@ -710,6 +644,9 @@
           "200": {
             "description": "expense found"
           },
+          "401": {
+            "description": "unauthorized"
+          },
           "404": {
             "description": "expense not found"
           }
@@ -736,6 +673,9 @@
           },
           "422": {
             "description": "invalid request"
+          },
+          "401": {
+            "description": "unauthorized"
           },
           "404": {
             "description": "expense not found"
@@ -787,6 +727,9 @@
         "responses": {
           "204": {
             "description": "expense deleted"
+          },
+          "401": {
+            "description": "unauthorized"
           },
           "404": {
             "description": "expense not found"
@@ -881,6 +824,9 @@
               }
             }
           },
+          "401": {
+            "description": "unauthorized"
+          },
           "404": {
             "description": "category not found",
             "content": {
@@ -942,7 +888,17 @@
           "email",
           "budget",
           "budget_reset_date"
-        ]
+        ],
+        "example": {
+          "id": 1,
+          "first_name": "John",
+          "last_name": "Doe",
+          "email": "johndoe@mail.com",
+          "budget": 1000.00,
+          "budget_reset_date": "2024-01-01",
+          "created_at": "2024-01-01T00:00:00Z",
+          "updated_at": "2024-01-01T00:00:00Z"
+        }
       },
       "expense": {
         "type": "object",
@@ -965,6 +921,14 @@
           },
           "user_id": {
             "type": "integer"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
           }
         },
         "required": [
@@ -980,7 +944,9 @@
           "amount": 45.99,
           "date": "2024-01-15",
           "category_id": 1,
-          "user_id": 1
+          "user_id": 1,
+          "created_at": "2024-01-01T00:00:00Z",
+          "updated_at": "2024-01-01T00:00:00Z"
         }
       },
       "category": {

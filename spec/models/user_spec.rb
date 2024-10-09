@@ -40,7 +40,6 @@ RSpec.describe User, type: :model do
 
   describe 'associations' do
     it { should have_many(:expenses).dependent(:destroy) }
-    it { should have_many(:categories).through(:expenses) }
   end
 
   describe 'callbacks' do

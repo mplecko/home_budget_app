@@ -7,7 +7,6 @@ class User < ApplicationRecord
   before_create :set_initial_budget
 
   has_many :expenses, dependent: :destroy
-  has_many :categories, through: :expenses
 
   validates :first_name, :last_name, presence: true
   validates :email, presence: true, uniqueness: true

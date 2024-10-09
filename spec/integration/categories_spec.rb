@@ -129,8 +129,21 @@ RSpec.describe 'Categories API', type: :request do
     end
 
     delete 'delete category' do
+      let!(:category_with_expenses) { create(:category) }
+      let!(:expense) { create(:expense, category: category_with_expenses) }
+
       tags 'Categories'
       security [Bearer: []]
+
+      response '422', 'cannot delete category with associated expenses' do
+        let(:id) { category_with_expenses.id }
+
+        it 'returns an unprocessable entity status with a meaningful error message' do
+          delete "/categories/#{id}", headers: headers
+          expect(response).to have_http_status(:unprocessable_entity)
+          expect(JSON.parse(response.body)['errors']).to include('Cannot delete category with associated expenses')
+        end
+      end
 
       response '204', 'category deleted' do
         let(:category) { create(:category) }
