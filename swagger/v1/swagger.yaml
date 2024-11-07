@@ -2,7 +2,7 @@
   "openapi": "3.0.1",
   "info": {
     "title": "Home budget API",
-    "version": "v1"
+    "version": "v1.1"
   },
   "paths": {
     "/signup": {
@@ -173,15 +173,24 @@
                         "user": {
                           "type": "object",
                           "properties": {
-                            "email": {
-                              "type": "string"
+                            "id": {
+                              "type": "integer"
                             },
                             "first_name": {
                               "type": "string"
                             },
                             "last_name": {
                               "type": "string"
-                            }
+                            },
+                            "email": {
+                              "type": "string"
+                            },
+                            "remaining_budget": {
+                              "type": "integer"
+                            },
+                            "maximum_budget": {
+                              "type": "integer"
+                            },
                           }
                         }
                       }
@@ -202,7 +211,7 @@
                       "type": "object",
                       "properties": {
                         "message": {
-                          "type": "string"
+                          "type": "string", example: "Invalid Email or password."
                         }
                       }
                     }
@@ -301,9 +310,9 @@
         }
       }
     },
-    "/users/users/budget": {
+    "/users/remaining_budgets": {
       "get": {
-        "summary": "Get the current user's budget",
+        "summary": "Get the current user's remaining budget",
         "tags": [
           "Users"
         ],
@@ -314,13 +323,13 @@
         ],
         "responses": {
           "200": {
-            "description": "Budget found",
+            "description": "Remaining Budget found",
             "content": {
               "application/json": {
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "budget": {
+                    "remaining_budget": {
                       "type": "number",
                       "example": 850.00
                     }
@@ -344,13 +353,141 @@
                 }
               }
             }
+          }
+        }
+      }
+    },
+    "/users/maximum_budgets": {
+      "get": {
+        "summary": "Get the current user's maximum budget",
+        "tags": [
+          "Users"
+        ],
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Budget found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "maximum_budget": {
+                      "type": "number",
+                      "example": 850.00
+                    }
+                  }
+                }
+              }
+            }
           },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "example": "You need to sign in or sign up before continuing."
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "summary": "Update the maximum budget for the current user",
+        "tags": [
+          "Users"
+        ],
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "maximum_budget": {
+                    "type": "number",
+                    "example": 2000.00
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Maximum budget updated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Maximum budget updated successfully"
+                    },
+                    "maximum_budget": {
+                      "type": "number",
+                      "example": 2000.00
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "example": "You need to sign in or sign up before continuing."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "example": "Failed to update maximum budget"
+                    }
+                  }
+                }
+              }
+            }
+          }
         }
       }
     },
     "/categories": {
       "get": {
-        "summary": "get categories",
+        "summary": "Get all available categories",
         "tags": [
           "Categories"
         ],
@@ -371,7 +508,7 @@
         }
       },
       "post": {
-        "summary": "create category",
+        "summary": "Create new category",
         "tags": [
           "Categories"
         ],
@@ -397,6 +534,7 @@
           }
         },
         "requestBody": {
+          "required": true,
           "content": {
             "application/json": {
               "schema": {
@@ -428,7 +566,7 @@
         }
       ],
       "get": {
-        "summary": "show category",
+        "summary": "Show category",
         "tags": [
           "Categories"
         ],
@@ -452,7 +590,7 @@
         }
       },
       "put": {
-        "summary": "update category",
+        "summary": "Update category",
         "tags": [
           "Categories"
         ],
@@ -481,6 +619,7 @@
           }
         },
         "requestBody": {
+          "required": true,
           "content": {
             "application/json": {
               "schema": {
@@ -499,7 +638,7 @@
         }
       },
       "delete": {
-        "summary": "delete category",
+        "summary": "Delete category",
         "tags": [
           "Categories"
         ],
@@ -528,7 +667,7 @@
     },
     "/expenses": {
       "get": {
-        "summary": "Retrieves all expenses",
+        "summary": "Retrieves all expenses for current user",
         "tags": [
           "Expenses"
         ],
@@ -559,7 +698,7 @@
         }
       },
       "post": {
-        "summary": "Creates a new expense",
+        "summary": "Create new expense",
         "tags": [
           "Expenses"
         ],
@@ -585,6 +724,7 @@
           }
         },
         "requestBody": {
+          "required": true,
           "content": {
             "application/json": {
               "schema": {
@@ -629,7 +769,7 @@
         }
       ],
       "get": {
-        "summary": "show expense",
+        "summary": "Show expense",
         "tags": [
           "Expenses"
         ],
@@ -653,7 +793,7 @@
         }
       },
       "put": {
-        "summary": "update expense",
+        "summary": "Update expense",
         "tags": [
           "Expenses"
         ],
@@ -682,6 +822,7 @@
           }
         },
         "requestBody": {
+          "required": true,
           "content": {
             "application/json": {
               "schema": {
@@ -713,7 +854,7 @@
         }
       },
       "delete": {
-        "summary": "delete expense",
+        "summary": "Delete expense",
         "tags": [
           "Expenses"
         ],
@@ -739,7 +880,7 @@
     },
     "/expenses/filter": {
       "get": {
-        "summary": "Filters expenses based on various parameters",
+        "summary": "Filters expenses based on one or multiple available parameters",
         "tags": [
           "Expenses"
         ],
@@ -755,7 +896,7 @@
             "name": "start_date",
             "in": "query",
             "format": "date",
-            "description": "Start date for filtering",
+            "description": "Start date for filtering (required if end_date is provided)",
             "schema": {
               "type": "string"
             }
@@ -764,7 +905,7 @@
             "name": "end_date",
             "in": "query",
             "format": "date",
-            "description": "End date for filtering",
+            "description": "End date for filtering (required if start_date is provided)",
             "schema": {
               "type": "string"
             }
@@ -772,7 +913,7 @@
           {
             "name": "min_price",
             "in": "query",
-            "description": "Minimum price for filtering",
+            "description": "Minimum price for filtering (required if max_price is provided)",
             "schema": {
               "type": "number"
             }
@@ -780,7 +921,7 @@
           {
             "name": "max_price",
             "in": "query",
-            "description": "Maximum price for filtering",
+            "description": "Maximum price for filtering (required if min_price is provided)",
             "schema": {
               "type": "number"
             }
@@ -865,11 +1006,15 @@
             "type": "string",
             "format": "email"
           },
-          "budget": {
+          "remaining_budget": {
             "type": "number",
             "format": "float"
           },
-          "budget_reset_date": {
+          "maximum_budget": {
+            "type": "number",
+            "format": "float"
+          },
+          "remaining_budget_reset_date": {
             "type": "string",
             "format": "date"
           },
@@ -886,18 +1031,18 @@
           "first_name",
           "last_name",
           "email",
-          "budget",
-          "budget_reset_date"
+          "remaining_budget",
+          "maximum_budget",
+          "remaining_budget_reset_date"
         ],
         "example": {
           "id": 1,
           "first_name": "John",
           "last_name": "Doe",
           "email": "johndoe@mail.com",
-          "budget": 1000.00,
-          "budget_reset_date": "2024-01-01",
-          "created_at": "2024-01-01T00:00:00Z",
-          "updated_at": "2024-01-01T00:00:00Z"
+          "remaining_budget": 1000.00,
+          "maximum_budget": 1666.00,
+          "remaining_budget_reset_date": "2025-01-01"
         }
       },
       "expense": {
@@ -941,12 +1086,12 @@
         "example": {
           "id": 1,
           "description": "Grocery Shopping",
-          "amount": 45.99,
           "date": "2024-01-15",
-          "category_id": 1,
-          "user_id": 1,
-          "created_at": "2024-01-01T00:00:00Z",
-          "updated_at": "2024-01-01T00:00:00Z"
+          "amount": 45.99,
+          "category": {
+            "id": 2,
+            "name": "Food"
+         }
         }
       },
       "category": {
@@ -972,9 +1117,7 @@
         ],
         "example": {
           "id": 1,
-          "name": "Groceries",
-          "created_at": "2024-01-01T00:00:00Z",
-          "updated_at": "2024-01-01T00:00:00Z"
+          "name": "Groceries"
         }
       }
     },

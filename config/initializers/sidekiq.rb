@@ -9,7 +9,7 @@ end
 require 'sidekiq-cron'
 
 Sidekiq::Cron::Job.create(
-  name: 'Reset User Budgets - Every month',
+  name: 'Reset User Remaining Budgets - Every month',
   cron: '0 0 1 * *',
-  class: 'ResetBudgetJob'
+  class: 'ResetRemainingBudgetJob'
 )

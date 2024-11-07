@@ -15,7 +15,7 @@ class ExpensesController < ApplicationController
 
     render json: {
       expense: ExpenseSerializer.new(expense).serializable_hash,
-      remaining_budget: current_user.budget
+      remaining_budget: current_user.remaining_budget
     }, status: :created
   end
 
@@ -24,7 +24,7 @@ class ExpensesController < ApplicationController
 
     render json: {
       expense: ExpenseSerializer.new(@expense).serializable_hash,
-      remaining_budget: current_user.budget
+      remaining_budget: current_user.remaining_budget
     }
   end
 
@@ -39,8 +39,10 @@ class ExpensesController < ApplicationController
     expenses = filter_by_price_range(expenses) if params[:min_price].present? || params[:max_price].present?
     expenses = filter_by_category(expenses) if params[:category_id].present?
 
+    serialized_expenses = expenses.map { |expense| ExpenseSerializer.new(expense).serializable_hash }
+
     render json: {
-      expenses: expenses,
+      expenses: serialized_expenses,
       total_expenses: expenses.sum(:amount)
     }
   end
@@ -61,7 +63,7 @@ class ExpensesController < ApplicationController
     end_date = parse_date(params[:end_date], 'end_date')
     raise ArgumentError, 'Start date must be before or equal to end date' if start_date > end_date
 
-    expenses.where(date: start_date..end_date)
+    expenses.within_date_range(start_date, end_date)
   end
 
   def filter_by_price_range(expenses)
@@ -70,7 +72,7 @@ class ExpensesController < ApplicationController
     max_price = parse_float(params[:max_price], 'max_price')
     raise ArgumentError, 'Minimum price must be less than or equal to maximum price' if min_price > max_price
 
-    expenses.where(amount: min_price..max_price)
+    expenses.within_price_range(min_price, max_price)
   end
 
   def filter_by_category(expenses)

@@ -4,36 +4,39 @@ class User < ApplicationRecord
          :recoverable, :rememberable, :validatable,
          :jwt_authenticatable, jwt_revocation_strategy: self
 
-  before_create :set_initial_budget
+  before_create :set_remaining_budget_reset_date
 
   has_many :expenses, dependent: :destroy
 
   validates :first_name, :last_name, presence: true
   validates :email, presence: true, uniqueness: true
 
-  def calculate_budget
-    total_expenses = expenses.sum(:amount)
-    new_budget = 1000 - total_expenses
-    update(budget: new_budget)
+  def update_maximum_budget(new_maximum_budget)
+    update!(maximum_budget: new_maximum_budget)
+    calculate_remaining_budget
   end
 
-  def self.reset_all_budgets
-    User.find_each do |user|
-      reset_budget_if_needed(user)
-    end
+  def calculate_remaining_budget
+    monthly_expenses = expenses.current_month.sum(:amount)
+    new_remaining_budget = maximum_budget - monthly_expenses
+    update!(remaining_budget: new_remaining_budget)
   end
 
-  def self.reset_budget_if_needed(user)
-    return unless Date.today >= user.budget_reset_date
+  def self.reset_all_remaining_budgets
+    User.find_each(&:reset_remaining_budget_if_needed)
+  end
 
-    Rails.logger.info "Resetting budget for #{user.email}"
-    user.update(budget: 1000.00, budget_reset_date: user.budget_reset_date.next_month.beginning_of_month)
+  def reset_remaining_budget_if_needed
+    return unless Date.today >= remaining_budget_reset_date
+
+    Rails.logger.info "Resetting budget for #{email}"
+    update(remaining_budget_reset_date: remaining_budget_reset_date.next_month.beginning_of_month)
+    calculate_remaining_budget
   end
 
   private
 
-  def set_initial_budget
-    self.budget = 1000.00
-    self.budget_reset_date = Date.today.next_month.beginning_of_month
+  def set_remaining_budget_reset_date
+    self.remaining_budget_reset_date = Date.today.next_month.beginning_of_month
   end
 end
