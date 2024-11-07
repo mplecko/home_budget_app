@@ -43,80 +43,101 @@ RSpec.describe User, type: :model do
   end
 
   describe 'callbacks' do
-    it 'sets initial budget before creation' do
+    it 'sets remaining budget reset date' do
       new_user = build(:user)
       new_user.save
-      expect(new_user.budget).to eq(1000.00)
-      expect(new_user.budget_reset_date).to eq(Date.today.next_month.beginning_of_month)
+      expect(new_user.remaining_budget).to eq(1000.00)
+      expect(new_user.maximum_budget).to eq(1000.00)
+      expect(new_user.remaining_budget_reset_date).to eq(Date.today.next_month.beginning_of_month)
     end
   end
 
-  describe '#calculate_budget' do
-    it 'calculates the remaining budget correctly' do
+  describe '#calculate_remaining_budget' do
+    it 'calculates the remaining budget correctly based on maximum_budget' do
       create(:expense, user: user, amount: 200.0)
       create(:expense, user: user, amount: 300.0)
 
-      user.calculate_budget
-      expect(user.budget).to eq(1000 - 200 - 300)
+      user.calculate_remaining_budget
+      expect(user.remaining_budget).to eq(user.maximum_budget - 200 - 300)
     end
 
-    it 'does not affect budget if no expenses exist' do
-      user.calculate_budget
-      expect(user.budget).to eq(1000.0)
-    end
-  end
-
-  describe '.reset_all_budgets' do
-    it 'resets budget for all users when needed' do
-      create(:expense, user: user, amount: 200.0)
-      user.update(budget_reset_date: Date.yesterday)
-      user.calculate_budget
-
-      User.reset_all_budgets
-      user.reload
-
-      expect(user.budget).to eq(1000.00)
-      expect(user.budget_reset_date).to eq(Date.today.next_month.beginning_of_month)
-    end
-
-    it 'does not reset budget if reset date has not passed' do
-      create(:expense, user: user, amount: 200.0)
-      user.update(budget_reset_date: Date.today + 2.days)
-      user.calculate_budget
-
-      budget_before_reset = user.budget
-
-      User.reset_all_budgets
-      user.reload
-
-      expect(user.budget).to eq(budget_before_reset)
+    it 'does not affect remaining_budget if no expenses exist' do
+      user.calculate_remaining_budget
+      expect(user.remaining_budget).to eq(user.maximum_budget)
     end
   end
 
-  describe '.reset_budget_if_needed' do
-    it 'resets budget if the reset date has passed' do
-      create(:expense, user: user, amount: 200.0)
-      user.update(budget_reset_date: Date.yesterday)
-      user.calculate_budget
-
-      User.reset_budget_if_needed(user)
-      user.reload
-
-      expect(user.budget).to eq(1000.00)
-      expect(user.budget_reset_date).to eq(Date.today.next_month.beginning_of_month)
+  describe '#update_maximum_budget' do
+    it 'updates the maximum_budget' do
+      user.update_maximum_budget(2000.0)
+      expect(user.maximum_budget).to eq(2000.0)
     end
 
-    it 'does not reset budget if the reset date has not passed' do
-      create(:expense, user: user, amount: 200.0)
-      user.update(budget_reset_date: Date.today + 2.days)
-      user.calculate_budget
+    it 'recalculates remaining_budget when maximum_budget is updated' do
+      create(:expense, user: user, amount: 100.0, date: Date.today.beginning_of_month)
 
-      budget_before_reset = user.budget
-
-      User.reset_budget_if_needed(user)
+      user.update_maximum_budget(2000.0)
       user.reload
 
-      expect(user.budget).to eq(budget_before_reset)
+      expected_remaining_budget = 2000.0 - 100.0
+      expect(user.remaining_budget).to eq(expected_remaining_budget)
+      expect(user.maximum_budget).to eq(2000.0)
+    end
+  end
+
+  describe '#reset_remaining_budget_if_needed' do
+    it 'resets remaining_budget by subtracting monthly expenses from maximum_budget if the reset date has passed' do
+      create(:expense, user: user, amount: 200.0, date: Date.today.beginning_of_month + 1.day)
+      create(:expense, user: user, amount: 150.0, date: Date.today.last_month.end_of_month)
+
+      user.update(remaining_budget_reset_date: Date.yesterday)
+      user.calculate_remaining_budget
+
+      user.reset_remaining_budget_if_needed
+      user.reload
+
+      monthly_expenses = 200.0
+      expected_remaining_budget = user.maximum_budget - monthly_expenses
+
+      expect(user.remaining_budget).to eq(expected_remaining_budget)
+      expect(user.remaining_budget_reset_date).to eq(Date.today.next_month.beginning_of_month)
+    end
+
+    it 'sets remaining_budget to maximum_budget if there are no expenses in the current month' do
+      user.update(remaining_budget_reset_date: Date.yesterday)
+      user.reset_remaining_budget_if_needed
+      user.reload
+
+      expect(user.remaining_budget).to eq(user.maximum_budget)
+      expect(user.remaining_budget_reset_date).to eq(Date.today.next_month.beginning_of_month)
+    end
+
+    it 'does not reset remaining budget if the reset date has not passed' do
+      create(:expense, user: user, amount: 200.0)
+      user.update(remaining_budget_reset_date: Date.today + 2.days)
+      user.calculate_remaining_budget
+
+      budget_before_reset = user.remaining_budget
+
+      user.reset_remaining_budget_if_needed
+      user.reload
+
+      expect(user.remaining_budget).to eq(budget_before_reset)
+    end
+  end
+
+  describe '#reset_all_remaining_budgets' do
+    it 'calls reset_remaining_budget_if_needed for each user with a past remaining_budget_reset_date' do
+      users = create_list(:user, 3, remaining_budget_reset_date: Date.yesterday)
+
+      allow(User).to receive(:find_each).and_yield(users[0]).and_yield(users[1]).and_yield(users[2])
+      users.each { |user| allow(user).to receive(:reset_remaining_budget_if_needed) }
+
+      User.reset_all_remaining_budgets
+
+      users.each do |user|
+        expect(user).to have_received(:reset_remaining_budget_if_needed)
+      end
     end
   end
 end
