@@ -9,7 +9,8 @@ REST API for tracking personal expenses and budget.
 3. [Tech Stack](#tech-stack)
 4. [Setup](#setup)
 5. [Running the App](#running-the-app)
-6. [API Documentation and Testing](#api-documentation)
+6. [API Documentation](#api-documentation)
+7. [RSpec Testing](#rspec-testing)
 
 
 ## Introduction
@@ -22,6 +23,7 @@ This API is designed to help users track their expenses and manage their budgets
 - Expense and category CRUD
 - Filtering expenses by date, price range, and category
 - Predefined budget for each user
+- Changeable maximum budget
 - API documentation with Swagger
 - RSpec for testing
 
@@ -54,9 +56,16 @@ Ensure you have the following installed:
 
 - Start server with `bundle exec rails s`
 - Default port currently set to 3001.
+- Start Redis server `redis-server`
+- Start Sidekiq server `bundle exec sidekiq`
 
 ## API Documentation
 
-* Start rails server and Documentation is available on [Swagger](http://localhost:3001/api-docs/index.html).
-* To test all endpoints, after login copy bearer value and paste it in Authorize function at the top of Swagger documentation page.
-* Hope you have fun using Home Budget API!
+- Start rails server and Documentation is available on [Swagger](http://localhost:3001/api-docs/index.html).
+- To test all endpoints, after login copy bearer value and paste it in Authorize function at the top of Swagger documentation page.
+- Hope you have fun using Home Budget API!
+
+## RSpec Testing
+
+- All models and controllers are covered with RSpec tests.
+- Run `rspec` command to execute tests.

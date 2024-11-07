@@ -92,10 +92,10 @@ RSpec.configure do |config|
             }
           }
         },
-        '/users/reset_budget' => {
+        '/users/reset_remaining_budget' => {
           post: {
             tags: ['User'],
-            summary: 'Manually reset the user budget',
+            summary: 'Manually reset the user remainig budget',
             operationId: 'resetUserBudget',
             security: [{ Bearer: [] }],
             responses: {
@@ -333,12 +333,13 @@ RSpec.configure do |config|
               first_name: { type: :string },
               last_name: { type: :string },
               email: { type: :string, format: :email },
-              budget: { type: :number, format: :float },
-              budget_reset_date: { type: :string, format: :date },
+              remaining_budget: { type: :number, format: :float },
+              maximum_budget: { type: :number, format: :float },
+              remaining_budget_reset_date: { type: :string, format: :date },
               created_at: { type: :string, format: 'date-time' },
               updated_at: { type: :string, format: 'date-time' }
             },
-            required: ['first_name', 'last_name', 'email', 'budget', 'budget_reset_date']
+            required: ['first_name', 'last_name', 'email', 'remaining_budget', 'maximum_budget', 'remaining_budget_reset_date']
           },
           expense: {
             type: :object,

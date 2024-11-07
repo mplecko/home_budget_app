@@ -4,6 +4,7 @@ FactoryBot.define do
     password { 'password' }
     first_name { Faker::Name.first_name }
     last_name { Faker::Name.last_name }
-    budget { 1000.0 }
+    remaining_budget { 1000.0 }
+    maximum_budget { 1000.0 }
   end
 end

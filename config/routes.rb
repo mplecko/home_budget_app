@@ -12,8 +12,9 @@ Rails.application.routes.draw do
       registrations: 'users/registrations'
     }
 
-  resources :users, only: [] do
-    get 'budget', to: 'users/users#show_budget'
+  namespace :users do
+    resource :maximum_budgets, only: %i[show update], controller: 'maximum_budgets'
+    resource :remaining_budgets, only: %i[show], controller: 'remaining_budgets'
   end
 
   resources :categories, only: %i[index show create update destroy]
