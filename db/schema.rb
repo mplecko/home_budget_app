@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2024_11_05_065414) do
+ActiveRecord::Schema[7.0].define(version: 2024_11_07_134132) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -46,6 +46,7 @@ ActiveRecord::Schema[7.0].define(version: 2024_11_05_065414) do
     t.decimal "remaining_budget", precision: 10, scale: 2, default: "1000.0"
     t.date "remaining_budget_reset_date"
     t.decimal "maximum_budget", precision: 10, scale: 2, default: "1000.0"
+    t.string "default_currency", default: "USD"
     t.index ["email"], name: "index_users_on_email", unique: true
     t.index ["jti"], name: "index_users_on_jti", unique: true
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true

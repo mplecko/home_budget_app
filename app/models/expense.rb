@@ -10,7 +10,7 @@ class Expense < ApplicationRecord
   after_destroy :update_user_remaining_budget
 
   scope :within_date_range, ->(start_date, end_date) { where(date: start_date..end_date) }
-  scope :current_month, -> { where(date: Date.today.beginning_of_month..Date.today.end_of_month) }
+  scope :current_month, -> { within_date_range(Date.today.beginning_of_month, Date.today.end_of_month) }
   scope :within_price_range, ->(min_price, max_price) { where(amount: min_price..max_price) }
 
   private

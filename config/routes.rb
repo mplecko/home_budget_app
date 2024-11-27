@@ -15,6 +15,7 @@ Rails.application.routes.draw do
   namespace :users do
     resource :maximum_budgets, only: %i[show update], controller: 'maximum_budgets'
     resource :remaining_budgets, only: %i[show], controller: 'remaining_budgets'
+    resource :default_currencies, only: %i[show update], controller: 'default_currencies'
   end
 
   resources :categories, only: %i[index show create update destroy]
