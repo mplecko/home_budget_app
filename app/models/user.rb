@@ -34,6 +34,10 @@ class User < ApplicationRecord
     calculate_remaining_budget
   end
 
+  def update_default_currency(new_default_currency)
+    update!(default_currency: new_default_currency)
+  end
+
   private
 
   def set_remaining_budget_reset_date

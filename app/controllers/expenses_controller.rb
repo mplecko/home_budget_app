@@ -38,6 +38,7 @@ class ExpensesController < ApplicationController
     expenses = filter_by_date_range(expenses) if params[:start_date].present? || params[:end_date].present?
     expenses = filter_by_price_range(expenses) if params[:min_price].present? || params[:max_price].present?
     expenses = filter_by_category(expenses) if params[:category_id].present?
+    expenses = filter_by_description(expenses) if params[:description].present?
 
     serialized_expenses = expenses.map { |expense| ExpenseSerializer.new(expense).serializable_hash }
 
@@ -80,6 +81,13 @@ class ExpensesController < ApplicationController
     raise ActiveRecord::RecordNotFound, 'Category not found' unless category
 
     expenses.where(category_id: category.id)
+  end
+
+  def filter_by_description(expenses)
+    description = params[:description]
+    raise ActiveRecord::RecordNotFound, 'No expenses found' if description.blank?
+
+    expenses.where("description like ?", "%#{description}%")
   end
 
   def parse_date(date_str, param_name)
