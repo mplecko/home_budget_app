@@ -22,3 +22,4 @@ EXPOSE 3001
 
 # Start the Rails server
 CMD ["rails", "server", "-b", "0.0.0.0", "-p", "3001"]
+
