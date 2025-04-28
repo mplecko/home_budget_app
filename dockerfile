@@ -18,8 +18,9 @@ RUN bundle _2.5.19_ install
 COPY . .
 
 # Expose port 3001
-EXPOSE 3001
+EXPOSE 3000
 
 # Start the Rails server
-CMD ["rails", "server", "-b", "0.0.0.0", "-p", "3001"]
+# CMD ["rails", "server", "-b", "0.0.0.0", "-p", "3001"]
+CMD ["rails", "server", "-b", "0.0.0.0", "-p", "3000"]
 
