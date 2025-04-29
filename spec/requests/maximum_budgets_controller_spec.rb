@@ -2,7 +2,7 @@ require 'rails_helper'
 
 RSpec.describe 'Users::MaximumBudgetsController', type: :request do
   let(:user) { create(:user) }
-  let(:headers) { authenticate_user(user) }
+  let(:headers) { authenticated_headers(user) }
 
   describe 'GET /users/maximum_budgets' do
     context 'when the user is authenticated' do
