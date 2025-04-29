@@ -18,7 +18,7 @@ Devise.setup do |config|
 
   # Configuration for JWT
   config.jwt do |jwt|
-    jwt.secret = Rails.application.credentials.devise_jwt_secret_key!
+    jwt.secret = ENV['DEVISE_JWT_SECRET_KEY'] || Rails.application.credentials.devise_jwt_secret_key
     jwt.dispatch_requests = [['POST', %r{^/login$}]]
     jwt.revocation_requests = [['DELETE', %r{^/logout$}]]
     jwt.expiration_time = 90.minutes.to_i
