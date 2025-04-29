@@ -2,7 +2,7 @@ require 'rails_helper'
 
 RSpec.describe 'Users::RemainingBudgetController', type: :request do
   let(:user) { create(:user) }
-  let(:headers) { authenticated_headers(user) }
+  let(:headers) { authenticate_user(user) }
 
   describe 'GET /users/remaining_budgets' do
     context 'when the user is authenticated' do

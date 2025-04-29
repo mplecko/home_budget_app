@@ -2,7 +2,7 @@ require 'rails_helper'
 
 RSpec.describe 'Categories', type: :request do
   let(:user) { create(:user) }
-  let(:headers) { authenticated_headers(user) }
+  let(:headers) { authenticate_user(user) }
   let(:category_params) { { category: { name: 'New Category' } } }
   let(:category) { create(:category) }
 
