@@ -14,6 +14,10 @@ COPY Gemfile Gemfile.lock ./
 RUN bundle install
 RUN bundle _2.5.19_ install
 
+# DB setup
+RUN bundle exec rails db:create
+RUN bundle exec rails db:migrate
+
 # Copy the rest of the application code
 COPY . .
 
