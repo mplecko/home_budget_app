@@ -37,7 +37,7 @@ jobs:
       PGPASSWORD: postgres
       DATABASE_URL: postgres://postgres:postgres@localhost:5432/home_budget_test
       REDIS_URL: redis://localhost:6379/0
-
+      DEVISE_JWT_SECRET_KEY: ${{ secrets.DEVISE_JWT_SECRET_KEY }}
 
     steps:
       - uses: actions/checkout@v3
