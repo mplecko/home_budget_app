@@ -20,8 +20,8 @@ gem 'devise'
 gem 'devise-jwt'
 
 # Serialization
-gem 'jsonapi-serializer'
 gem 'active_model_serializers', '~> 0.10.0'
+gem 'jsonapi-serializer'
 
 # sidekiq for background jobs
 gem 'sidekiq'
@@ -39,13 +39,13 @@ gem "rack-cors"
 # Swagger API documentation
 gem 'rswag'
 gem 'rswag-api'
-gem 'rswag-ui'
 gem 'rswag-specs'
+gem 'rswag-ui'
 
 # Rspec, faker and FactoryBot gems
-gem 'rspec-rails'
 gem 'factory_bot_rails'
 gem 'faker'
+gem 'rspec-rails'
 # Gem which provides the have_many matcher with options like dependent: :destroy
 gem 'shoulda-matchers'
 
