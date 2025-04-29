@@ -3,7 +3,17 @@ require 'spec_helper'
 ENV['RAILS_ENV'] ||= 'test'
 require File.expand_path('../config/environment', __dir__)
 require 'rspec/rails'
+require 'devise/jwt/test_helpers'
 require_relative '../config/environment'
+
+# Load support files
+Dir[Rails.root.join('spec', 'support', '**', '*.rb')].each { |f| require f }
+
+RSpec.configure do |config|
+  # Include the ApiHelper module in request specs
+  config.include ApiHelper, type: :request
+end
+
 # Prevent database truncation if the environment is production
 abort("The Rails environment is running in production mode!") if Rails.env.production?
 # Uncomment the line below in case you have `--require rails_helper` in the `.rspec` file
