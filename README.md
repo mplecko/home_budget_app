@@ -8,9 +8,8 @@ REST API for tracking personal expenses and budget.
 2. [Features](#features)
 3. [Tech Stack](#tech-stack)
 4. [Setup](#setup)
-5. [Running the App](#running-the-app)
-6. [API Documentation](#api-documentation)
-7. [RSpec Testing](#rspec-testing)
+5. [API Documentation](#api-documentation)
+6. [RSpec Testing](#rspec-testing)
 
 
 ## Introduction
@@ -44,28 +43,24 @@ Ensure you have the following installed:
 - Ruby 3.2.1
 - Rails 7.0.8
 - PostgreSQL
+- Docker
 - Bundler
 
 ### Steps
 
 - Clone this repository.
 - Download secrets from Lastpass item named **HB Secrets** stored in **Shared-Development** folder and extract files to config folder inside your local repository.
-- Setup database with `rails db:create` followed by `rails db:migrate`
-
-## Running the App
-
-- Start server with `bundle exec rails s`
-- Default port currently set to 3001.
-- Start Redis server `redis-server`
-- Start Sidekiq server `bundle exec sidekiq`
+- Run docker image and start container with `docker-compose up --build`
+- When running application first time open separate terminal tab to create and migrate database using commands `docker-compose run web rake db:create` followed by `docker-compose run web rake db:migrate`
+- Default local port is set to 3000.
 
 ## API Documentation
 
-- Start rails server and Documentation is available on [Swagger](http://localhost:3001/api-docs/index.html).
+- Start rails server and Documentation is available on [Swagger](http://localhost:3000/api-docs/index.html).
 - To test all endpoints, after login copy bearer value and paste it in Authorize function at the top of Swagger documentation page.
 - Hope you have fun using Home Budget API!
 
 ## RSpec Testing
 
 - All models and controllers are covered with RSpec tests.
-- Run `rspec` command to execute tests.
+- Run `rspec` command ub terminal to execute tests.
