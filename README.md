@@ -11,7 +11,6 @@ REST API for tracking personal expenses and budget.
 5. [API Documentation](#api-documentation)
 6. [RSpec Testing](#rspec-testing)
 
-
 ## Introduction
 
 This API is designed to help users track their expenses and manage their budgets efficiently. Users can create categories, add expenses, filter expenses, and see their current budget status.
