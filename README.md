@@ -11,7 +11,6 @@ REST API for tracking personal expenses and budget.
 5. [API Documentation](#api-documentation)
 6. [RSpec Testing](#rspec-testing)
 
-
 ## Introduction
 
 This API is designed to help users track their expenses and manage their budgets efficiently. Users can create categories, add expenses, filter expenses, and see their current budget status.
@@ -30,6 +29,7 @@ This API is designed to help users track their expenses and manage their budgets
 
 - **Backend**: Ruby on Rails
 - **Database**: PostgreSQL
+- **Docker**
 - **Authentication**: Devise with JWT
 - **API Documentation**: Swagger (using Rswag)
 - **Testing**: RSpec
@@ -52,7 +52,6 @@ Ensure you have the following installed:
 - Download secrets from Lastpass item named **HB Secrets** stored in **Shared-Development** folder and extract files to config folder inside your local repository.
 - Run docker image and start container with `docker-compose up --build`
 - When running application first time open separate terminal tab to create and migrate database using commands `docker-compose run web rake db:create` followed by `docker-compose run web rake db:migrate`
-- Default local port is set to 3000.
 
 ## API Documentation
 
@@ -63,4 +62,5 @@ Ensure you have the following installed:
 ## RSpec Testing
 
 - All models and controllers are covered with RSpec tests.
-- Run `rspec` command ub terminal to execute tests.
+- Run `rspec` command in terminal to execute tests on local environment
+- Tests are running automatically when pull requests are made and when merge of pull request is executed
